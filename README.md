@@ -86,9 +86,9 @@ docker compose exec tang show-keys
 
 ## Environment Variables
 
-| Option      | Default | Description                                              |
-|------------:|:--------|:---------------------------------------------------------|
-| `PUID`      | `1000`  | The user ID used for running `tangd` (or other commands) |
-| `PGID`      | `1000`  | The user ID used for running `tangd` (or other commands) |
-| `TAND_DB`   | `/data` | The tang db directory used within the container          |
-| `TANG_PORT` | `8000`  | The port used by tang within the container               |
+| Option      | Default | Description                                               |
+|------------:|:--------|:----------------------------------------------------------|
+| `PUID`      | `1000`  | The user ID used for running `tangd` (or other commands)  |
+| `PGID`      | `1000`  | The group ID used for running `tangd` (or other commands) |
+| `TAND_DB`   | `/data` | The tang db directory used within the container           |
+| `TANG_PORT` | `8000`  | The port used by tang within the container                |
