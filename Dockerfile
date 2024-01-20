@@ -36,5 +36,7 @@ ENV PGID=1000
 ENV TANG_DB=/data
 ENV TANG_PORT=8000
 
+STOPSIGNAL SIGKILL
+
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["daemon"]
