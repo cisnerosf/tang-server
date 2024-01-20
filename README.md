@@ -67,14 +67,14 @@ Running `tangd-keygen`
 
 ~~~bash
 # note: the standard jwk argument is pre-populated
-docker compose exec tang docker-entrypoint keygen
+docker compose run tang keygen
 ~~~
 
 Running `tangd-rotate-keys`
 
 ~~~bash
 # note: the jwk directory option is pre-populated
-docker compose exec tang docker-entrypoint rotate-keys
+docker compose run tang rotate-keys
 ~~~
 
 Running  `tang-show-keys`
