@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e;
+
+# echo -e "run-app ${@}";
+
+main() {
+
+  echo -e "[run-app] main(${@})";
+
+  local _COMMAND;
+
+  # Command defaults to tangd daemon if  omitted
+  if [[ "${#}" == '0' ]]; then
+    _COMMAND='daemon';
+  else
+    _COMMAND="${1}";
+    shift;
+  fi;
+
+  if [[ "${_COMMAND}" == 'daemon' ]]; then
+    set -x;
+    exec /usr/bin/tangd --port ${TANG_PORT} --listen ${TANG_DB} ${@};
+  elif [[ "${_COMMAND}" == 'show-keys' ]]; then
+    set -x;
+    exec /usr/bin/tang-show-keys ${TANG_PORT};
+  elif [[ "${_COMMAND}" == 'keygen' ]]; then
+    set -x;
+    exec /usr/bin/tangd-keygen ${TANG_DB} ${@};
+  elif [[ "${_COMMAND}" == 'rotate-keys' ]]; then
+    set -x;
+    exec /usr/bin/tangd-rotate-keys -v -d ${TANG_DB};
+  else
+    echo 'Unknown command specified, valid options are: [ daemon, show-keys, keygen, rotate-keys ]';
+    exit 1;
+  fi;
+}
+
+main "${@}";
