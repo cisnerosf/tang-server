@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tang-server
+  labels:
+    app: tang-server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: tang-server
+    name: http
+  selector:
+    app: tang-server
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tang-server
+  labels:
+    app: tang-server
+spec:
+  serviceName: tang-server
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tang-server
+  template:
+    metadata:
+      labels:
+        app: tang-server
+    spec:
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      initContainers:
+      - name: fix-permissions
+        image: alpine:latest
+        command:
+          - sh
+          - -c
+          - |
+            chown -R 1001:1001 /data
+            chmod -R 440 /data
+            chmod 770 /data
+        volumeMounts:
+        - name: tang-server-data
+          mountPath: /data
+        securityContext:
+          runAsUser: 0 
+      containers:
+      - name: tang-server
+        image: docker.io/cisnerosf/tang-server:1.0
+        ports:
+        - containerPort: 8000
+          name: tang-server
+        volumeMounts:
+        - name: tang-server-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+        livenessProbe:
+          httpGet:
+            path: /adv
+            port: tang-server
+        readinessProbe:
+          httpGet:
+            path: /adv
+            port: tang-server
+  volumeClaimTemplates:
+  - metadata:
+      name: tang-server-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tang-server
+spec:
+  rules:
+    - host: tang-server.mydomain.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: tang-server
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e;
+
+# update var permissions
+# chown -R 1001:1001 /data;
+# chmod -R 440 /data; # set read-only permissions on all keys
+# chmod 770 /data; # reset group/owner rwx permissions on tang db dir
+
+exec /usr/bin/tangd --port 8000 --listen /data;

@@ -1,6 +1,6 @@
-FROM alpine:3.19 AS build
+FROM alpine:3.22 AS build
 
-ARG TANG_TAG=v14
+ARG TANG_TAG=v15
 
 RUN set -eux && \
     apk add --no-cache \
@@ -16,27 +16,24 @@ RUN set -eux && \
     ninja && \
     ninja install
 
-FROM alpine:3.19
+FROM alpine:3.22
 
 COPY --from=build \
     /tang-install/libexec \
     /tang-install/bin \
     /usr/bin/
 
-COPY ./docker-entrypoint ./run-app /usr/bin/
+COPY ./entrypoint /usr/bin/
+RUN chmod +x /usr/bin/entrypoint
 
 RUN set -eux && \
     apk add --no-cache su-exec curl http-parser jansson jose
 
+# Create user
+RUN addgroup -g 1001 tanggroup && adduser -D -u 1001 -G tanggroup tang
+
+USER 1001
 EXPOSE 8000
-VOLUME [ "/data" ]
+VOLUME ["/data"]
 
-ENV PUID=1000
-ENV PGID=1000
-ENV TANG_DB=/data
-ENV TANG_PORT=8000
-
-STOPSIGNAL SIGKILL
-
-ENTRYPOINT ["docker-entrypoint"]
-CMD ["daemon"]
+ENTRYPOINT ["entrypoint"]
